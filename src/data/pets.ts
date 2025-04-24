@@ -6,6 +6,12 @@ export interface Pet {
   image: string;
 }
 
+export interface PetForm {
+  name: string;
+  type: string;
+  image: string;
+}
+
 export const pets = [
   {
     id: 1,

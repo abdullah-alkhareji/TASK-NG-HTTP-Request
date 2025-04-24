@@ -1,26 +1,56 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Pet, pets } from '../../../data/pets';
+import { Pet } from '../../../data/pets';
+import { PetService } from '../../services/pet.service';
+import { NotFoundComponent } from '../not-found/not-found.component';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { switchMap } from 'rxjs';
 
 @Component({
   selector: 'app-pet-details',
   standalone: true,
-  imports: [],
+  imports: [NotFoundComponent],
   templateUrl: './pet-details.component.html',
-  styleUrl: './pet-details.component.css'
+  styleUrl: './pet-details.component.css',
 })
 export class PetDetailsComponent {
-  pet: Pet | null = null;
-  pets = pets;
+  private petService = inject(PetService);
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
 
-  constructor(private route: ActivatedRoute, private router: Router) {
-    const id = Number(this.route.snapshot.paramMap.get('id'));
-    const foundPet = pets.find((p) => p.id === id);
+  pet = toSignal(
+    this.route.paramMap.pipe(
+      switchMap((params) => {
+        const id = Number(params.get('id'));
+        return this.petService.getPet(id);
+      })
+    ),
+    { initialValue: null as Pet | null }
+  );
 
-    if (!foundPet) {
-      this.router.navigate(['/pets']);
-    } else {
-      this.pet = foundPet;
+  deletePet() {
+    if (this.pet()) {
+      this.petService.deletePet(this.pet()!.id).subscribe({
+        next: () => {
+          this.router.navigate(['/pets']);
+        },
+        error: (error) => {
+          console.error('Error deleting pet:', error);
+        },
+      });
+    }
+  }
+
+  adoptPet() {
+    if (this.pet()) {
+      this.petService.adoptPet(this.pet()!).subscribe({
+        next: () => {
+          this.router.navigate(['/pets']);
+        },
+        error: (error) => {
+          console.error('Error adopting pet:', error);
+        },
+      });
     }
   }
 }
