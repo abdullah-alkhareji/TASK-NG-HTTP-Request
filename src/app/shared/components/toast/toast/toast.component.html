@@ -1,0 +1,11 @@
+@if (toast$ | async; as toast) {
+<div class="fixed top-0 right-0 m-4">
+  <div
+    class="p-4 rounded-lg shadow-lg min-w-xs capitalize"
+    [class.bg-green-300]="toast.type === 'success'"
+    [class.bg-red-300]="toast.type === 'error'"
+  >
+    <p class="text-gray-800">{{ toast.message }}</p>
+  </div>
+</div>
+}

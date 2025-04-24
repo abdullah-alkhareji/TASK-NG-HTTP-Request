@@ -18,7 +18,7 @@ export class PetsComponent {
   private petService = inject(PetService);
 
   // Use the refreshable pets observable instead
-  readonly allPets = toSignal(this.petService.getPetsWithRefresh(), {
+  readonly allPets = toSignal(this.petService.getPets(), {
     initialValue: [] as Pet[],
   });
 
